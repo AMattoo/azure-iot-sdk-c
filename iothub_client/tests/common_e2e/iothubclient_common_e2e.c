@@ -1252,7 +1252,9 @@ static void service_send_c2d(IOTHUB_MESSAGING_CLIENT_HANDLE iotHubMessagingHandl
 
     if (deviceToUse->moduleId)
     {
-        iotHubMessagingResult = IoTHubMessaging_SendAsyncModule(iotHubMessagingHandle, deviceToUse->deviceId, deviceToUse->moduleId, receiveUserContext->msgHandle, sendCompleteCallback, receiveUserContext);
+        iotHubMessagingResult = IOTHUB_MESSAGING_ERROR;
+        ASSERT_FAIL("modules are not supported for sending messages");
+        // iotHubMessagingResult = IoTHubMessaging_SendAsyncModule(iotHubMessagingHandle, deviceToUse->deviceId, deviceToUse->moduleId, receiveUserContext->msgHandle, sendCompleteCallback, receiveUserContext);
     }
     else
     {
