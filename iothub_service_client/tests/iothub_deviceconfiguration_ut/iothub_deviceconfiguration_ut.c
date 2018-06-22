@@ -306,6 +306,24 @@ extern "C"
         return TEST_STRING_VALUE;
     }
 
+    static LIST_ITEM_HANDLE my_list_get_head_item(SINGLYLINKEDLIST_HANDLE list)
+    {
+        LIST_ITEM_HANDLE result;
+
+        if (list == NULL)
+        {
+            result = NULL;
+        }
+        else
+        {
+            LIST_INSTANCE* list_instance = (LIST_INSTANCE*)list;
+
+            result = list_instance->head;
+        }
+
+        return result;
+}
+
 #ifdef __cplusplus
 }
 #endif
@@ -442,6 +460,9 @@ TEST_SUITE_INITIALIZE(TestClassInitialize)
 
     REGISTER_GLOBAL_MOCK_RETURN(json_object_set_value, JSONSuccess);
     REGISTER_GLOBAL_MOCK_FAIL_RETURN(json_object_set_value, JSONFailure);
+
+    REGISTER_GLOBAL_MOCK_HOOK(singlylinkedlist_get_head_item, my_list_get_head_item);
+    REGISTER_GLOBAL_MOCK_FAIL_RETURN(singlylinkedlist_get_head_item, NULL);
 }
 
 TEST_SUITE_CLEANUP(TestClassCleanup)
