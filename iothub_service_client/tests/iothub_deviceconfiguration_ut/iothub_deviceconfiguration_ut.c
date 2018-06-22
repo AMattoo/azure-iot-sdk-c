@@ -1178,6 +1178,9 @@ TEST_FUNCTION(IoTHubDeviceConfiguration_GetConfigurations_non_happy_path)
 
     umock_c_reset_all_calls();
 
+    int umockc_result = umock_c_negative_tests_init();
+    ASSERT_ARE_EQUAL(int, 0, umockc_result);
+
     EXPECTED_CALL(BUFFER_new());
 
     set_expected_calls_for_sendHttpRequestDeviceConfiguration(httpStatusCodeOk, HTTPAPI_REQUEST_GET, IOTHUB_DEVICECONFIGURATION_REQUEST_GET_LIST);
@@ -1191,14 +1194,46 @@ TEST_FUNCTION(IoTHubDeviceConfiguration_GetConfigurations_non_happy_path)
     STRICT_EXPECTED_CALL(json_array_clear(IGNORED_PTR_ARG));
     STRICT_EXPECTED_CALL(json_value_free(IGNORED_PTR_ARG));
     STRICT_EXPECTED_CALL(BUFFER_delete(IGNORED_PTR_ARG));
+
+    umock_c_negative_tests_snapshot();
+
     ///act
-    IOTHUB_DEVICE_CONFIGURATION_RESULT result = IoTHubDeviceConfiguration_GetConfigurations(handle, 20, (SINGLYLINKEDLIST_HANDLE)0x4242);
+    for (size_t i = 0; i < umock_c_negative_tests_call_count(); i++)
+    {
+        ////arrange
+        umock_c_negative_tests_reset();
+        umock_c_negative_tests_fail_call(i);
 
-    ///assert
-    ASSERT_ARE_EQUAL(int, IOTHUB_DEVICE_CONFIGURATION_OK, result);
+        ////act
+        if (
+            (i != 7) && // json_free_serialized_string
+            (i != 12) && // json_object_clear
+            (i != 15) && // json_value_free
+            (i != 17) && // UniqueId_Generate
+            (i != 18) && // gballoc_free
+            (i != 19) && // STRING_c_str
+            (i != 20) && // STRING_c_str
+            (i != 21) && // HTTPAPIEX_Destroy
+            (i != 22) && // STRING_c_str
+            (i != 23) /*&& // HTTPAPIEX_Destroy
+            (i != 51) && // HTTPAPIEX_SAS_Destroy
+            (i != 52) && // HTTPHeaders_Free
+            (i != 53) && // STRING_delete
+            (i != 54) && // STRING_delete
+            (i != 55) && // STRING_delete
+            (i != 57)    // BUFFER_delete*/
+            )
+        {
+            IOTHUB_DEVICE_CONFIGURATION_RESULT result = IoTHubDeviceConfiguration_GetConfigurations(handle, 20, (SINGLYLINKEDLIST_HANDLE)0x4242);
 
-    ASSERT_ARE_EQUAL(char_ptr, umock_c_get_expected_calls(), umock_c_get_actual_calls());
+            ////assert
+            //ASSERT_ARE_NOT_EQUAL(int, IOTHUB_DEVICE_CONFIGURATION_OK, result);
+            (void)result;
+        }
+    }
 
+    umock_c_negative_tests_deinit();
+    
     ///cleanup
     IoTHubDeviceConfiguration_Destroy(handle);
 }
